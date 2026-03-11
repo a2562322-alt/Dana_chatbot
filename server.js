@@ -16,29 +16,19 @@ app.use(express.json())
 질환 점수 계산
 */
 
-function calculateDiseases(symptoms){
+function calculateDiseases(subSymptoms){
 
 let score = {}
 
-symptoms.forEach(symptom => {
+subSymptoms.forEach(symptom => {
 
-if(symptomTree[symptom]){
+if(symptomMap[symptom]){
 
-const subs = symptomTree[symptom].subSymptoms
-
-subs.forEach(sub => {
-
-if(symptomMap[sub]){
-
-symptomMap[sub].forEach(disease => {
+symptomMap[symptom].forEach(disease => {
 
 if(!score[disease]) score[disease] = 0
 
-score[disease] += 1
-
-})
-
-}
+score[disease]++
 
 })
 
@@ -120,9 +110,9 @@ questions
 
 app.post("/diagnosis",(req,res)=>{
 
-const selectedSymptoms = req.body.symptoms
+const subs = req.body.subSymptoms
 
-const diseases = calculateDiseases(selectedSymptoms)
+const diseases = calculateDiseases(subs)
 
 const topDiseases = diseases.slice(0,3)
 
