@@ -22,9 +22,11 @@ let score = {}
 
 symptoms.forEach(symptom => {
 
-const subSymptoms = symptomTree[symptom]?.subSymptoms || []
+if(symptomTree[symptom]){
 
-subSymptoms.forEach(sub => {
+const subs = symptomTree[symptom].subSymptoms
+
+subs.forEach(sub => {
 
 if(symptomMap[sub]){
 
@@ -39,6 +41,8 @@ score[disease] += 1
 }
 
 })
+
+}
 
 })
 
@@ -127,7 +131,6 @@ candidateDiseases: topDiseases
 })
 
 })
-
 /*
 검사 치료
 */
