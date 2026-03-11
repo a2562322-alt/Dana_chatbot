@@ -73,7 +73,7 @@ res.json(symptomTree[symptom].subSymptoms)
 
 app.post("/question",(req,res)=>{
 
-const symptoms = req.body.symptoms
+const symptoms = req.body.subSymptoms
 
 let questions = []
 
@@ -110,12 +110,32 @@ questions
 
 app.post("/diagnosis",(req,res)=>{
 
-const subSymptoms = req.body.subSymptoms
+const symptoms = req.body.subSymptoms || []
 
-const diseases = calculateDiseases(subSymptoms)
+let score = {}
+
+symptoms.forEach(symptom=>{
+
+if(symptomMap[symptom]){
+
+symptomMap[symptom].forEach(disease=>{
+
+if(!score[disease]) score[disease] = 0
+
+score[disease]++
+
+})
+
+}
+
+})
+
+const result = Object.entries(score)
+.sort((a,b)=>b[1]-a[1])
+.map(v=>v[0])
 
 res.json({
-candidateDiseases:diseases.slice(0,3)
+candidateDiseases: result.slice(0,3)
 })
 
 })
