@@ -110,14 +110,12 @@ questions
 
 app.post("/diagnosis",(req,res)=>{
 
-const subs = req.body.subSymptoms
+const subSymptoms = req.body.subSymptoms
 
-const diseases = calculateDiseases(subs)
-
-const topDiseases = diseases.slice(0,3)
+const diseases = calculateDiseases(subSymptoms)
 
 res.json({
-candidateDiseases: topDiseases
+candidateDiseases:diseases.slice(0,3)
 })
 
 })
