@@ -22,9 +22,13 @@ let score = {}
 
 symptoms.forEach(symptom => {
 
-if(symptomMap[symptom]){
+const subSymptoms = symptomTree[symptom]?.subSymptoms || []
 
-symptomMap[symptom].forEach(disease => {
+subSymptoms.forEach(sub => {
+
+if(symptomMap[sub]){
+
+symptomMap[sub].forEach(disease => {
 
 if(!score[disease]) score[disease] = 0
 
@@ -36,12 +40,13 @@ score[disease] += 1
 
 })
 
+})
+
 return Object.entries(score)
 .sort((a,b)=>b[1]-a[1])
 .map(v=>v[0])
 
 }
-
 /*
 대표 증상
 */
