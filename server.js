@@ -28,7 +28,7 @@ symptomMap[symptom].forEach(disease => {
 
 if(!score[disease]) score[disease] = 0
 
-score[disease]++
+score[disease] += 1
 
 })
 
@@ -73,7 +73,11 @@ res.json(symptomTree[symptom].subSymptoms)
 
 app.post("/question",(req,res)=>{
 
+<<<<<<< HEAD
 const symptoms = req.body.subSymptoms
+=======
+const symptoms = req.body.symptoms
+>>>>>>> 747a314 (fix diagnosis api)
 
 let questions = []
 
@@ -110,6 +114,7 @@ questions
 
 app.post("/diagnosis",(req,res)=>{
 
+<<<<<<< HEAD
 const symptoms = req.body.subSymptoms || []
 
 let score = {}
@@ -139,6 +144,20 @@ candidateDiseases: result.slice(0,3)
 })
 
 })
+=======
+const selectedSymptoms = req.body.symptoms
+
+const diseases = calculateDiseases(selectedSymptoms)
+
+const topDiseases = diseases.slice(0,3)
+
+res.json({
+candidateDiseases: topDiseases
+})
+
+})
+
+>>>>>>> 747a314 (fix diagnosis api)
 /*
 검사 치료
 */
