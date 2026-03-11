@@ -1,5 +1,4 @@
 console.log("server start")
-require("dotenv").config()
 
 const express = require("express")
 const cors = require("cors")
@@ -7,8 +6,6 @@ const cors = require("cors")
 const symptomTree = require("./symptom-tree.json")
 const symptomMap = require("./symptom-disease-map.json")
 const diseaseDB = require("./diseaseDB.json")
-
-const generateQuestion = require("./ai")
 
 const app = express()
 
@@ -31,7 +28,7 @@ symptomMap[symptom].forEach(disease => {
 
 if(!score[disease]) score[disease] = 0
 
-score[disease]++
+score[disease] += 1
 
 })
 
@@ -46,7 +43,7 @@ return Object.entries(score)
 }
 
 /*
-대표증상 목록
+대표 증상
 */
 
 app.get("/symptoms",(req,res)=>{
@@ -56,56 +53,78 @@ res.json(Object.keys(symptomTree))
 })
 
 /*
-세부증상 가져오기
+세부 증상
 */
 
 app.get("/subsymptoms/:symptom",(req,res)=>{
 
 const symptom = req.params.symptom
 
+if(!symptomTree[symptom]){
+return res.json([])
+}
+
 res.json(symptomTree[symptom].subSymptoms)
 
 })
 
 /*
-질환 계산 + AI 질문
+추가 질문 (rule 기반)
 */
 
-app.post("/diagnosis", async (req,res)=>{
+app.post("/question",(req,res)=>{
 
-const selectedSymptoms = req.body.symptoms
+const symptoms = req.body.symptoms
 
-const candidateDiseases = calculateDiseases(selectedSymptoms)
+let questions = []
 
-const topDiseases = candidateDiseases.slice(0,3)
+if(symptoms.includes("기침")){
 
-let aiQuestion = ""
+questions.push("기침이 3일 이상 지속되나요?")
+questions.push("가래 색이 노란색 또는 녹색인가요?")
 
-try{
+}
 
-aiQuestion = await generateQuestion(
-selectedSymptoms,
-topDiseases
-)
+if(symptoms.includes("속쓰림")){
 
-}catch(e){
+questions.push("식사 후 속쓰림이 심해지나요?")
+questions.push("누우면 증상이 심해지나요?")
 
-aiQuestion = "추가 질문을 생성할 수 없습니다."
+}
+
+if(symptoms.includes("복부 통증")){
+
+questions.push("설사나 변비가 동반되나요?")
+questions.push("식사 후 통증이 심해지나요?")
 
 }
 
 res.json({
-
-candidateDiseases: topDiseases,
-
-aiQuestion: aiQuestion
-
+questions
 })
 
 })
 
 /*
-최종 결과
+질환 계산
+*/
+
+app.post("/diagnosis",(req,res)=>{
+
+const selectedSymptoms = req.body.symptoms
+
+const diseases = calculateDiseases(selectedSymptoms)
+
+const topDiseases = diseases.slice(0,3)
+
+res.json({
+candidateDiseases: topDiseases
+})
+
+})
+
+/*
+검사 치료
 */
 
 app.post("/result",(req,res)=>{
@@ -125,7 +144,17 @@ treatments: diseaseDB[d].treatments
 res.json(results)
 
 })
+
+/*
+루트 페이지
+*/
+
+app.get("/",(req,res)=>{
+res.send("Medical Chatbot API running")
+})
+
 const PORT = process.env.PORT || 3000
-app.listen(3000,()=>{
+
+app.listen(PORT,()=>{
 console.log("medical chatbot server running")
 })
